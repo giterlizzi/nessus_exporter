@@ -1,0 +1,67 @@
+groups:
+  - name: nessus.rules
+    rules:
+      - alert: NessusDown
+        expr: up{job="nessus"} == 0
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Nessus exporter is down"
+          description: "The Prometheus exporter for Nessus is not reachable for more than 2 minutes."
+      - alert: NessusHighCPU
+        expr: nessus_health_nessus_cpu > 85
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Nessus CPU usage"
+          description: "Nessus is using more than 85% CPU."
+      - alert: NessusLowDiskSpace
+        expr: nessus_health_nessus_data_disk_free < 1024
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space for Nessus data directory"
+          description: "Less than 1 GB of space left in Nessus data directory."
+      - alert: NessusLicenseAboutToExpire
+        expr: (nessus_license_expiration_date - time()) < 86400 * 7
+        labels:
+          severity: warning
+        annotations:
+          summary: "Nessus license expires in less than 7 days"
+          description: "Check and renew the license before it expires."
+      - alert: NessusLicenseQuotaExceeded
+        expr: (nessus_license_ips_used / nessus_license_ips_total) * 100 > 90
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Nessus IP license usage above 90%"
+          description: 'Nessus license is near its IP limit. Usage: {{ $value | printf "%.0f" }}%.'
+      - alert: NessusScanInProgress
+        expr: nessus_scan_running_scan > 0
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "Nessus scan in progress"
+          description: "A Nessus scan is currently in progress. Monitor the scan status for completion."
+      - alert: NessusPluginUpdatesAvailable
+        expr: nessus_plugin_updates_available > 0
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "Nessus plugin updates available"
+          description: "There are updates available for Nessus plugins. Consider updating to the latest version."
+      - alert: NessusPluginSetOutdated
+        expr: time() - nessus_plugin_set_timestamp_seconds > 30 * 86400
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Nessus plugin set is older than 30 days"
+          description: >
+            The Nessus plugin set is older than 30 days.

@@ -1,0 +1,29 @@
+go:
+    # Whenever the Go version is updated here, .circle/config.yml should also
+    # be updated.
+    version: 1.24
+repository:
+    path: github.com/giterlizzi/nessus_exporter
+build:
+    binaries:
+        - name: nessus_exporter
+          path: .
+    ldflags: |
+        -X github.com/prometheus/common/version.Version={{.Version}}
+        -X github.com/prometheus/common/version.Revision={{.Revision}}
+        -X github.com/prometheus/common/version.Branch={{.Branch}}
+        -X github.com/prometheus/common/version.BuildUser={{user}}@{{host}}
+        -X github.com/prometheus/common/version.BuildDate={{date "20060102-15:04:05"}}
+crossbuild:
+  platforms:
+    - darwin/amd64
+    - darwin/arm64
+    - linux/amd64
+    - linux/arm64
+    - windows/amd64
+tarball:
+    files:
+        - README.md
+        - CHANGELOG.md
+        - LICENSE
+        - nessus_alert_rules.yml
